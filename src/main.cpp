@@ -15,8 +15,8 @@
 #define DELAYVAL 500 // Time (in milliseconds) to pause between pixels
 
 #ifndef STASSID
-#define STASSID "Kára 2.4GHz"
-#define STAPSK  "SjokkAtPassordetErLangt"
+#define STASSID ""
+#define STAPSK  ""
 #endif
 
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
