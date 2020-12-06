@@ -25,6 +25,8 @@ const char* password = STAPSK;
 uint8_t rgb[3] = {122,122,122};
 uint8_t wave = 0;
 int mode = 0;
+int o1 = 0; //Option 1
+int o2 = 0; //Option 2
 
 ESP8266WebServer server(80);
 
@@ -38,6 +40,11 @@ const String postForms = "<html>\
     </style>\
   </head>\
   <body>\
+      <h1>POST form data to mode</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/mode/\">\
+      <input type=\"number\" name=\"mode\" value=\"world\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+    </form>\
     <h1>POST plain text to r</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/r/\">\
       <input type=\"number\" name=\'r\'><br>\
@@ -53,9 +60,14 @@ const String postForms = "<html>\
       <input type=\"number\" name=\"b\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
-    <h1>POST form data to mode</h1><br>\
-    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/mode/\">\
-      <input type=\"number\" name=\"mode\" value=\"world\"><br>\
+        <h1>POST option 1</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/o1/\">\
+      <input type=\"number\" name=\"o1\" value=\"world\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+    </form>\
+        <h1>POST option 2</h1><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/o2/\">\
+      <input type=\"number\" name=\"o2\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
   </body>\
@@ -94,6 +106,42 @@ void handleG() {
         temp.remove(0,2);
         rgb[1] = temp.toInt();
         Serial.println(rgb[1]);
+        Serial.println(temp);
+        digitalWrite(led, 0);
+    }
+    server.send(200, "text/html", postForms);
+
+}
+
+void handleOption1() {
+    if (server.method() != HTTP_POST) {
+        digitalWrite(led, 1);
+        server.send(405, "text/plain", "Method Not Allowed");
+        digitalWrite(led, 0);
+    } else {
+        digitalWrite(led, 1);
+        String temp = server.arg("plain");
+        temp.remove(0,3);
+        o1 = temp.toInt();
+        Serial.println(o1);
+        Serial.println(temp);
+        digitalWrite(led, 0);
+    }
+    server.send(200, "text/html", postForms);
+
+}
+
+void handleOption2() {
+    if (server.method() != HTTP_POST) {
+        digitalWrite(led, 1);
+        server.send(405, "text/plain", "Method Not Allowed");
+        digitalWrite(led, 0);
+    } else {
+        digitalWrite(led, 1);
+        String temp = server.arg("plain");
+        temp.remove(0,3);
+        o2 = temp.toInt();
+        Serial.println(o2);
         Serial.println(temp);
         digitalWrite(led, 0);
     }
@@ -180,6 +228,10 @@ void setup(void) {
 
     server.on("/b/", handleB);
 
+    server.on("/o1/", handleOption1);
+
+    server.on("/o2/", handleOption2);
+
     server.on("/mode/",handleMode);
 
 
@@ -187,6 +239,81 @@ void setup(void) {
 
     server.begin();
     Serial.println("HTTP server started");
+}
+
+
+int partition(int arr[],int low,int high) {
+  int pivot = arr[high];
+  int small = low;
+  for (int i = low; i < high; i++) {
+    if (arr[i]<pivot) {
+        int sw = arr[i];
+        arr[i] = arr[small];
+        arr[small] = sw;
+        small++;
+        pixels.setPixelColor(i,pixels.ColorHSV(arr[i]));
+        pixels.setPixelColor(small,pixels.ColorHSV(arr[small]));
+        pixels.show();
+              server.handleClient();
+    }
+  }
+         int sw = arr[high];
+        arr[high] = arr[small];
+        arr[small] = sw;
+                pixels.setPixelColor(high,pixels.ColorHSV(arr[high]));
+        pixels.setPixelColor(small,pixels.ColorHSV(arr[small]));
+        pixels.show();
+              server.handleClient();
+  return small;
+}
+
+
+int quicksort(int arr[], int low, int high) {
+  if (low<high) {
+    int pi = partition(arr,low,high);
+
+    quicksort(arr,low,pi-1);
+    quicksort(arr,pi+1,high);
+
+  }
+}
+
+void shadertoy(double (*r)(double, double), double (*g)(double, double),double (*b)(double, double)) {
+    for(uint16_t j = 0; j<2*NUMPIXELS;j++) {
+
+      for(uint16_t i = 0; i<NUMPIXELS;i++){
+        double i2 = double(i)/NUMPIXELS;
+        double j2 = double(j)/NUMPIXELS;
+        pixels.setPixelColor(i,int(255*((*r)(i2,j2))),int(255*((*g)(i2,j2))),int(255*((*b)(i2,j2))));
+      }
+
+      pixels.show();   // Send the updated pixel colors to the hardware.
+
+      server.handleClient();
+  }
+}
+
+double smod(double x,double m) {
+  return fmod(m+fmod(x,m),m);
+}
+
+double step(double lim, double x) {
+  return (x > lim) ? 1.:0.;
+}
+double right_light_pulse(double x,double t) {
+    double combined = smod(x*30,1.)+t*5;
+    combined = fabs(1.-2.*smod(combined,1.));
+   return combined*combined;
+}
+
+double empty_light_pulse(double x, double t) {
+   return 0.;
+}
+
+double left_light_pulse(double x, double t) {
+      double combined = (smod(x*30,1.)-t*5);
+      combined = fabs(1.-2.*smod(combined,1.));
+   return combined*combined;
 }
 
 void loop(void) {
@@ -354,6 +481,43 @@ void loop(void) {
             delay(1000);
             server.handleClient();
         }
+    }else if(mode == 7) {
+       double (*r)(double, double);
+       double (*g)(double, double);
+       double (*b)(double, double);
+       r=  &empty_light_pulse;
+       g = &empty_light_pulse;
+       b = &empty_light_pulse;
+      if (o1 == 0) {
+        r = &right_light_pulse;
+      } else if (o1 == 1) {
+        g = &right_light_pulse;
+      } else if (o1 == 2) {
+        b = &right_light_pulse;
+      }
+      if (o2 == 0) {
+        r = &left_light_pulse;
+      } else if (o2 == 1) {
+        g = &left_light_pulse;
+      } else if (o2 == 2) {
+        b = &left_light_pulse;
+      }
+      shadertoy(r,g,b);
+    }else if(mode == 8) {
+              int list_length = 300;//rgb[0];
+
+       int *arr = new int[list_length];
+
+       for (int i = 0; i < list_length; i++) {
+        arr[i] = random(65536);
+        pixels.setPixelColor(i,pixels.ColorHSV(arr[i]));
+        pixels.show();
+              server.handleClient();
+       }
+
+
+        quicksort(arr,0,list_length-1);
+        server.handleClient();
     }else{
         // The first NeoPixel in a strand is #0, second is 1, all the way up
         // to the count of pixels minus one.
