@@ -36,40 +36,84 @@ const String postForms = "<html>\
   <head>\
     <title>ESP8266 Web Server POST handling</title>\
     <style>\
-      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
+      body { background-color: #222222; font-family: Arial, Helvetica, Sans-Serif; Color: #cccccc; }\
+\
+      #site {\
+        height:100%;\
+        display: grid;\
+        grid-template-columns: 3fr 4fr 3fr 3fr 4fr 3fr;\
+        grid-template-rows: 100px 50px auto 50px;\
+        grid-template-areas:\
+        \". header header header header .\"\
+        \". . . . . .\"\
+        \". mode rgb rgb options .\"\
+        \". . . . . .\"\
+            }\
+\
+        #header {\
+            grid-area: header;\
+            /*background-color: #CCCCCC;\
+            color: #222222;*/\
+            font-size: 4vw;\
+            text-align: center;\
+        }\
+\
+        #rgb {\
+            grid-area: rgb;\
+            text-align: center;\
+        }\
+\
+        #options {\
+            grid-area: options;\
+            background-color: #303030;\
+            text-align: center;\
+        }\
+\
+        #mode {\
+            grid-area: mode;\
+            background-color: #303030;\
+            text-align: center;\
+        }\
     </style>\
+\
   </head>\
   <body>\
-      <h1>POST form data to mode</h1><br>\
-    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/mode/\">\
-      <input type=\"number\" name=\"mode\" value=\"world\"><br>\
-      <input type=\"submit\" value=\"Submit\">\
-    </form>\
-    <h1>POST plain text to r</h1><br>\
+    <div id=\"site\">\
+        <div id=\"header\">\
+            LEDstrip controller\
+        </div>\
+        <div id =\"mode\">\
+          <h1>mode</h1><br>\
+        <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/mode/\">\
+          <input type=\"number\" name=\"mode\" value=\"world\"><br>\
+          <input type=\"submit\" value=\"Submit\">\
+        </form>\
+            </div>\
+                <div id =\"rgb\">\
+    <h1>RGB</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/r/\">\
-      <input type=\"number\" name=\'r\'><br>\
+      <input type=\"number\" name='r'><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
-    <h1>POST form data to g</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/g/\">\
       <input type=\"number\" name=\"g\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
-    <h1>POST form data to b</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/b/\">\
       <input type=\"number\" name=\"b\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
-        <h1>POST option 1</h1><br>\
+       </div>\
+        <div id =\"options\">\
+        <h1>Optional parameters</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/o1/\">\
       <input type=\"number\" name=\"o1\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
-        <h1>POST option 2</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/o2/\">\
       <input type=\"number\" name=\"o2\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
-    </form>\
+    </form></div></div>\
   </body>\
 </html>";
 
