@@ -27,7 +27,7 @@ uint8_t wave = 0;
 int mode = 0;
 int o1 = 0; //Option 1
 int o2 = 0; //Option 2
-String modenames[] = {"default", "random", "simple wave", "sort0","sort1","sort2","dual mulitwave","quicksort"};
+String modenames[] = {"default", "random", "simple wave", "Multiwave", "insertionsort","bubblesort", "stalinsort","dual mulitwave with options","quicksort"};
 
 ESP8266WebServer server(80);
 
@@ -104,7 +104,7 @@ String postFirstHalf = "<html>\
             <hr>\
           <h1>modes</h1><br>";
 
-String postSecondHalf = "
+String postSecondHalf = "\
         </div>\
 \
         <div id =\"rgb\">\
@@ -133,7 +133,7 @@ String postSecondHalf = "
        }\
     </script>\
   </body>\
-</html>"\
+</html>";
 String postForms = "";
 
 void handleRoot() {
@@ -237,8 +237,8 @@ void handleNotFound() {
 
 void setup(void) {
     String buttons = "";
-    for (int = 0; i<modenames.length; i++) {
-        buttons += "<button onclick=\"submitThis(" + i + ")\">"+modenames[i] + "</button><br>";
+    for (int i = 0; i<sizeof(modenames)/sizeof(modenames[0]); i++) {
+        buttons += "<button onclick=\"submitThis(" + String(i) + ")\">"+modenames[i] + "</button><br>";
     }
     postForms = postFirstHalf + buttons + postSecondHalf;
     pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
