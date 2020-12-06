@@ -27,12 +27,13 @@ uint8_t wave = 0;
 int mode = 0;
 int o1 = 0; //Option 1
 int o2 = 0; //Option 2
+String modenames[] = {"default", "random", "simple wave", "sort0","sort1","sort2","dual mulitwave","quicksort"};
 
 ESP8266WebServer server(80);
 
 const int led = LED_BUILTIN;
 
-const String postForms = "<html>\
+String postFirstHalf = "<html>\
   <head>\
     <title>ESP8266 Web Server POST handling</title>\
     <style>\
@@ -42,11 +43,12 @@ const String postForms = "<html>\
         height:100%;\
         display: grid;\
         grid-template-columns: 3fr 4fr 3fr 3fr 4fr 3fr;\
-        grid-template-rows: 100px 50px auto 50px;\
+        grid-template-rows: 100px 50px 100px auto 50px;\
         grid-template-areas:\
         \". header header header header .\"\
         \". . . . . .\"\
         \". mode rgb rgb options .\"\
+        \". modes rgb rgb options .\"\
         \". . . . . .\"\
             }\
 \
@@ -60,6 +62,7 @@ const String postForms = "<html>\
 \
         #rgb {\
             grid-area: rgb;\
+            background-color: #252525;\
             text-align: center;\
         }\
 \
@@ -70,7 +73,14 @@ const String postForms = "<html>\
         }\
 \
         #mode {\
+            font-size: 1.5em;\
             grid-area: mode;\
+            background-color: #303030;\
+            text-align: center;\
+        }\
+\
+        #modes {\
+            grid-area: modes;\
             background-color: #303030;\
             text-align: center;\
         }\
@@ -83,13 +93,21 @@ const String postForms = "<html>\
             LEDstrip controller\
         </div>\
         <div id =\"mode\">\
-          <h1>mode</h1><br>\
-        <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/mode/\">\
-          <input type=\"number\" name=\"mode\" value=\"world\"><br>\
+          mode<br>\
+            <br>\
+        <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/mode/\" id=\"modeform\">\
+          <input type=\"number\" name=\"mode\" id=\"modevalue\" value=\"world\"><br>\
           <input type=\"submit\" value=\"Submit\">\
         </form>\
             </div>\
-                <div id =\"rgb\">\
+        <div id =\"modes\">\
+            <hr>\
+          <h1>modes</h1><br>";
+
+String postSecondHalf = "
+        </div>\
+\
+        <div id =\"rgb\">\
     <h1>RGB</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/rgb/\">\
       <input type=\"number\" name='r'><br><br>\
@@ -97,8 +115,8 @@ const String postForms = "<html>\
       <input type=\"number\" name=\"b\" value=\"world\"><br><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
-       </div>\
-        <div id =\"options\">\
+                                    </div>\
+                        <div id =\"options\">\
         <h1>Optional parameters</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/o1/\">\
       <input type=\"number\" name=\"o1\" value=\"world\"><br>\
@@ -108,8 +126,15 @@ const String postForms = "<html>\
       <input type=\"number\" name=\"o2\" value=\"world\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form></div></div>\
+   <script>\
+       function submitThis(i) {\
+           document.getElementById(\"modevalue\").value=i;\
+           document.getElementById(\"modeform\").submit();\
+       }\
+    </script>\
   </body>\
-</html>";
+</html>"\
+String postForms = "";
 
 void handleRoot() {
     digitalWrite(led, 1);
@@ -210,6 +235,11 @@ void handleNotFound() {
 }
 
 void setup(void) {
+    String buttons = "";
+    for (int = 0; i<modenames.length; i++) {
+        buttons += "<button onclick=\"submitThis(" + i + ")\">"+modenames[i] + "</button><br>";
+    }
+    postForms = postFirstHalf + buttons + postSecondHalf;
     pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
     pinMode(led, OUTPUT);
     digitalWrite(led, 0);
