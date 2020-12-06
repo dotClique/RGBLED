@@ -124,9 +124,18 @@ void handleRGB() {
         digitalWrite(led, 0);
     } else {
         String temp = server.arg("plain");
-        rgb[0] = temp[2];
-        rgb[0] = temp[6];
-        rgb[0] = temp[10];
+        index = 0;
+        while (true) {
+            int amp = temp.indexOf("&");
+            int equals = temp.indexOf("=");
+            if (amp != -1) {
+            rgb[index] = temp.toInt(temp.substring(equals,amp));
+            } else {
+               rgb[index] = temp.toInt(temp.substring(equals));
+               break
+            }
+            index++;
+        }
         Serial.println(rgb[0]);
         Serial.println(temp);
         digitalWrite(led, 0);
@@ -225,11 +234,7 @@ void setup(void) {
 
     server.on("/", handleRoot);
 
-    server.on("/r/", handleR);
-
-    server.on("/g/", handleG);
-
-    server.on("/b/", handleB);
+    server.on("/rgb/", handleRGB);
 
     server.on("/o1/", handleOption1);
 
