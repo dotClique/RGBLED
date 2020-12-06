@@ -149,15 +149,16 @@ void handleRGB() {
         digitalWrite(led, 0);
     } else {
         String temp = server.arg("plain");
-        index = 0;
+        int index = 0;
         while (true) {
             int amp = temp.indexOf("&");
-            int equals = temp.indexOf("=");
+            int es = temp.indexOf("=");
             if (amp != -1) {
-            rgb[index] = temp.toInt(temp.substring(equals,amp));
+              rgb[index] = temp.substring(es+1,amp).toInt();
+              temp.remove(0,amp+1);
             } else {
-               rgb[index] = temp.toInt(temp.substring(equals));
-               break
+               rgb[index] = temp.substring(es+1).toInt();
+               break;
             }
             index++;
         }
