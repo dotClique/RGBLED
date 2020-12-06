@@ -91,16 +91,10 @@ const String postForms = "<html>\
             </div>\
                 <div id =\"rgb\">\
     <h1>RGB</h1><br>\
-    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/r/\">\
-      <input type=\"number\" name='r'><br>\
-      <input type=\"submit\" value=\"Submit\">\
-    </form>\
-    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/g/\">\
-      <input type=\"number\" name=\"g\" value=\"world\"><br>\
-      <input type=\"submit\" value=\"Submit\">\
-    </form>\
-    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\"  action=\"/b/\">\
-      <input type=\"number\" name=\"b\" value=\"world\"><br>\
+    <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/rgb/\">\
+      <input type=\"number\" name='r'><br><br>\
+      <input type=\"number\" name=\"g\" value=\"world\"><br><br>\
+      <input type=\"number\" name=\"b\" value=\"world\"><br><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
        </div>\
@@ -123,38 +117,21 @@ void handleRoot() {
     digitalWrite(led, 0);
 }
 
-void handleR() {
+void handleRGB() {
     if (server.method() != HTTP_POST) {
         digitalWrite(led, 1);
         server.send(405, "text/plain", "Method Not Allowed");
         digitalWrite(led, 0);
     } else {
         String temp = server.arg("plain");
-        temp.remove(0,2);
-        rgb[0] = temp.toInt();
+        rgb[0] = temp[2];
+        rgb[0] = temp[6];
+        rgb[0] = temp[10];
         Serial.println(rgb[0]);
         Serial.println(temp);
         digitalWrite(led, 0);
     }
     server.send(200, "text/html", postForms);
-}
-
-void handleG() {
-    if (server.method() != HTTP_POST) {
-        digitalWrite(led, 1);
-        server.send(405, "text/plain", "Method Not Allowed");
-        digitalWrite(led, 0);
-    } else {
-        digitalWrite(led, 1);
-        String temp = server.arg("plain");
-        temp.remove(0,2);
-        rgb[1] = temp.toInt();
-        Serial.println(rgb[1]);
-        Serial.println(temp);
-        digitalWrite(led, 0);
-    }
-    server.send(200, "text/html", postForms);
-
 }
 
 void handleOption1() {
@@ -186,24 +163,6 @@ void handleOption2() {
         temp.remove(0,3);
         o2 = temp.toInt();
         Serial.println(o2);
-        Serial.println(temp);
-        digitalWrite(led, 0);
-    }
-    server.send(200, "text/html", postForms);
-
-}
-
-void handleB() {
-    if (server.method() != HTTP_POST) {
-        digitalWrite(led, 1);
-        server.send(405, "text/plain", "Method Not Allowed");
-        digitalWrite(led, 0);
-    } else {
-        digitalWrite(led, 1);
-        String temp = server.arg("plain");
-        temp.remove(0,2);
-        rgb[2] = temp.toInt();
-        Serial.println(rgb[2]);
         Serial.println(temp);
         digitalWrite(led, 0);
     }
